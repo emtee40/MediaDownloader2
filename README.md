@@ -2,6 +2,10 @@
 
 MediaDownloader is a cross-platform java app which allows you to download files from many well known websites such as YouTube, Facebook, Instagram and SoundCloud (way more will be added in the future).
 
+A work in progress screenshot looks like this:
+
+![MediaDownloader 2.0.0 Work in progress image](https://github.com/R3DST0RM/MediaDownloader2/blob/master/screenshots/mainwindow.png)
+
 ## Changelog (2.0.0)
 
 Completely overhauled MediaDownloader project connecting to our public API (__http://downloader.r3d-soft.de__)
