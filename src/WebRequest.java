@@ -14,7 +14,7 @@ import java.util.Map;
 public class WebRequest {
     private String strCredentialsUsername;
     private String strCredentialsPassword;
-    private String strCredentialsBase64;
+    private String strCredentialsBase64 = "";
     private String strUrl;
     private String strUserAgent =
             "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";
@@ -46,6 +46,8 @@ public class WebRequest {
             // Do not use custom user agent
             if (!customUserAgent.isEmpty()) {
                 this.strUserAgent = customUserAgent;
+                this.document = EstablishConnection(this.strUrl, this.strUserAgent, useCredentials);
+            } else {
                 this.document = EstablishConnection(this.strUrl, this.strUserAgent, useCredentials);
             }
         } catch (IOException e){

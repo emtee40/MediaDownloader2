@@ -5,7 +5,7 @@
  */
 public class CGlobals {
 
-    public static final String VERSION_STRING = "1.0b";
+    public static final String VERSION_STRING = "2.0.0";
     public static OS CURRENT_OS = OS.Undefined;
     public static String PATH_SEPARATOR;
 
