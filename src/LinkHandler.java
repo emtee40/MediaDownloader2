@@ -15,13 +15,8 @@ public class LinkHandler {
     // TODO: rework mp4 stuff
     // TODO: rework table model
     // TODO: rework downloaders and add them here
-    private static String[] supportedHosters =
-    {
-            "youtube", "youtu.be",
-            "soundcloud",
-            "uploaded.net", "uploaded.to",
-            "vimeo"
-    };
+    // TODO: LinkHandler just abstracts the layer of sending information to the server and responding to it with a user ui
+                // => regarding Metadata
 
     //private static List<String> currentMp4Files = new ArrayList<>();
 
@@ -281,40 +276,13 @@ public class LinkHandler {
     //}
 
     /* New implementation for JavaFX */
-    public static void AnalyzeUrl(String strUrl){
-        ConsolePrinter.printDebug("Auto_detect hoster for given url");
-        try{
-            URL urlDetect = new URL(strUrl);
-            int hosterId;
-            if((hosterId = getDownloadPage(strUrl)) > 0){
-                // found downloader
-                String hosterHostname = (supportedHosters[hosterId]).toLowerCase();
+    public static void getMetadata(String strToDownload){
+        // TODO: declare api end node to return following data:
+        // TODO: { success: true|false, errorMessage: null|String, isPlaylist: true|false , data: [ {title: string, url: string}, ...]
+        // If playlist => data is populated with all urls in playlist => otherwise just echo input url => add them to table
 
-                if(hosterHostname.contains("youtu")){
-                    // add to list (YouTube)
-                }
-            } else {
-                // no downloader found
-                ConsolePrinter.showAlert("Not supported", "Downloader not supported :(",
-                        "Sorry, the URL you have entered, is currently not supported by our downloader." +
-                                " As we improve our service, this service will be later supported." +
-                                " To let us know you are interested in it e-mail us: admin@r3d-soft.de",
-                        Alert.AlertType.ERROR);
-            }
-
-        } catch (Exception ex){
-            ConsolePrinter.printError("Error occurred during url detection. More information: " + ex.getMessage());
-            ConsolePrinter.showAlert("Unknown error", "Unknown error occurred",
-                    "More information on this error: " + ex.getMessage(), Alert.AlertType.ERROR);
-        }
-    }
-
-    public static int getDownloadPage(String toDetect) {
-        for (int i = 0; i < supportedHosters.length; i++) {
-            if (toDetect.toLowerCase().contains(supportedHosters[i].toLowerCase()))
-                return i;
-        }
-
-        return -1;
+        // To start the download another request is send for each url
+        // api end node should retrieve a downloadable url inside json
+        // TODO: attention in this node remember youtube saves the IP => replace the server ip with users public ip
     }
 }

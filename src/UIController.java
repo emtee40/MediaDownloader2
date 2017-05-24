@@ -36,7 +36,7 @@ public class UIController {
 
         txtUrl.setEditable(false);
         // analyze url
-        LinkHandler.AnalyzeUrl(strToDownload);
+        LinkHandler.getMetadata(strToDownload);
 
         // re-enable
         txtUrl.setText("");
