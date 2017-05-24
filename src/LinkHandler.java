@@ -1,3 +1,5 @@
+import javafx.scene.control.Alert;
+
 import javax.swing.*;
 import java.io.*;
 import java.net.MalformedURLException;
@@ -13,8 +15,22 @@ public class LinkHandler {
     // TODO: rework mp4 stuff
     // TODO: rework table model
     // TODO: rework downloaders and add them here
+    private static String[] supportedHosters =
+    {
+            "youtube", "youtu.be",
+            "soundcloud",
+            "uploaded.net", "uploaded.to",
+            "vimeo"
+    };
+
     //private static List<String> currentMp4Files = new ArrayList<>();
 
+    /**
+     * @deprecated
+     * @param URL
+     * @param hoster
+     * @param window
+     */
     public static void AddURLToTable(String URL, String hoster, FreshUI window) {
         /*
             TODO: review this code piece
@@ -144,6 +160,10 @@ public class LinkHandler {
             return; // nothing i can do here cuz unknown host! should never happen (handled earlier in code) */
     }
 
+    /**
+     * @deprecated
+     * @param window
+     */
     public static void StartDownloading(FreshUI window) {
         Thread t = new Thread(new Runnable() {
             @Override
@@ -216,6 +236,10 @@ public class LinkHandler {
         t.start();
     }
 
+    /**
+     * Checks if google is reachable which is used to test if a proper network connection is available
+     * @return boolean true if google is reachable; false if not
+     */
     private static boolean netIsAvailable() {
         try {
             final URL url = new URL("http://www.google.com");
@@ -229,6 +253,17 @@ public class LinkHandler {
         }
     }
 
+    /**
+     * @deprecated
+     * @param window
+     * @param url
+     * @param hoster
+     * @param progress
+     * @param removeGema
+     * @param removeVideo
+     * @param SavePath
+     * @param convertAudio
+     */
     private static void AddToTableModel(FreshUI window, Object url, Object hoster, Object progress,
                                         Object removeGema, Object removeVideo, Object SavePath, Object convertAudio) {
         window.dTableModel.addRow(new Object[]{
@@ -244,4 +279,42 @@ public class LinkHandler {
     //public static void AddMp4ToList(String s) {
     //    currentMp4Files.add(s);
     //}
+
+    /* New implementation for JavaFX */
+    public static void AnalyzeUrl(String strUrl){
+        ConsolePrinter.printDebug("Auto_detect hoster for given url");
+        try{
+            URL urlDetect = new URL(strUrl);
+            int hosterId;
+            if((hosterId = getDownloadPage(strUrl)) > 0){
+                // found downloader
+                String hosterHostname = (supportedHosters[hosterId]).toLowerCase();
+
+                if(hosterHostname.contains("youtu")){
+                    // add to list (YouTube)
+                }
+            } else {
+                // no downloader found
+                ConsolePrinter.showAlert("Not supported", "Downloader not supported :(",
+                        "Sorry, the URL you have entered, is currently not supported by our downloader." +
+                                " As we improve our service, this service will be later supported." +
+                                " To let us know you are interested in it e-mail us: admin@r3d-soft.de",
+                        Alert.AlertType.ERROR);
+            }
+
+        } catch (Exception ex){
+            ConsolePrinter.printError("Error occurred during url detection. More information: " + ex.getMessage());
+            ConsolePrinter.showAlert("Unknown error", "Unknown error occurred",
+                    "More information on this error: " + ex.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+    public static int getDownloadPage(String toDetect) {
+        for (int i = 0; i < supportedHosters.length; i++) {
+            if (toDetect.toLowerCase().contains(supportedHosters[i].toLowerCase()))
+                return i;
+        }
+
+        return -1;
+    }
 }
