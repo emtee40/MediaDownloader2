@@ -1,7 +1,9 @@
 import javafx.scene.control.Alert;
+import org.json.JSONObject;
 
 import javax.swing.*;
 import java.io.*;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -12,6 +14,8 @@ import java.util.List;
  * Represents a class which handles all links and acts as communication layer for each downloader
  */
 public class LinkHandler {
+    private String strResponseText;
+
     // TODO: rework mp4 stuff
     // TODO: rework table model
     // TODO: rework downloaders and add them here
@@ -19,7 +23,6 @@ public class LinkHandler {
                 // => regarding Metadata
 
     //private static List<String> currentMp4Files = new ArrayList<>();
-
     /**
      * @deprecated
      * @param URL
@@ -270,13 +273,18 @@ public class LinkHandler {
                 SavePath
         });
     }
-
     //public static void AddMp4ToList(String s) {
     //    currentMp4Files.add(s);
     //}
 
     /* New implementation for JavaFX */
-    public static void getMetadata(String strToDownload){
+
+    /**
+     * Add a link to the download queue as well as retrieving proper metadata about it before
+     * Therefore connect to r3d-soft.de's API
+     * @param strToDownload String URL which contains media to be downloaded
+     */
+    public void getMetadata(String strToDownload){
         // TODO: declare api end node to return following data:
         // TODO: { success: true|false, errorMessage: null|String, isPlaylist: true|false , data: [ {title: string, url: string}, ...]
         // If playlist => data is populated with all urls in playlist => otherwise just echo input url => add them to table
@@ -284,5 +292,38 @@ public class LinkHandler {
         // To start the download another request is send for each url
         // api end node should retrieve a downloadable url inside json
         // TODO: attention in this node remember youtube saves the IP => replace the server ip with users public ip
+    }
+
+    private JSONObject SendRequest() {
+        try {
+            //String rawData = "RAW_DATA_HERE";
+            String url = (strServerIp.startsWith("http://") || strServerIp.startsWith("https://")) ? strServerIp : "http://" + strServerIp;
+            URL obj = new URL(url + strApiNode);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+
+            // get request method
+            String strRequestMethod = getHTTPMethod();
+            if (strRequestMethod == null)
+                throw new Exception("getHTTPMethod returns null");
+            con.setRequestMethod(strRequestMethod);
+
+            // Get response stuff
+            int responseCode = con.getResponseCode();
+            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+
+            in.close();
+
+            this.strResponseText = response.toString();
+            return isSuccessfullyExcuted();
+
+        } catch(Exception ex){
+            // TODO: throw exception
+        }
     }
 }
