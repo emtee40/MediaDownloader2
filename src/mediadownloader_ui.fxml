@@ -72,12 +72,12 @@
                      <content>
                         <BorderPane prefHeight="200.0" prefWidth="200.0">
                            <center>
-                              <TableView fx:id="tableQueue" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                              <TableView fx:id="tableQueue" editable="true" onKeyPressed="#tableQueueKeyPressed" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                                 <columns>
-                                  <TableColumn prefWidth="105.0" text="URL" />
-                                  <TableColumn minWidth="0.0" prefWidth="178.0" text="Title" />
-                                    <TableColumn prefWidth="169.0" text="Progress" />
-                                    <TableColumn prefWidth="146.0" text="Path on disk" />
+                                    <TableColumn fx:id="titleCol" minWidth="0.0" prefWidth="222.0" text="Title" />
+                                    <TableColumn fx:id="urlCol" prefWidth="161.0" text="URL" />
+                                    <TableColumn fx:id="progressCol" prefWidth="69.0" text="Progress" />
+                                    <TableColumn fx:id="pathCol" prefWidth="146.0" text="Path on disk" />
                                 </columns>
                               </TableView>
                            </center>

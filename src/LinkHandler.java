@@ -7,20 +7,34 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Represents a class which handles all links and acts as communication layer for each downloader
  */
 public class LinkHandler {
     private String strResponseText;
+    private String strServerIp = "http://downloader.r3d-soft.de/api/";
+    private String strRequestUrl;
+    private Map<String, String> apiNodes = new HashMap<String, String>(){
+        {
+            put("getMetadata", "search/{url}");
+            put("getDownloadLink", "");
+        }
+    };
 
     // TODO: rework mp4 stuff
     // TODO: rework table model
     // TODO: rework downloaders and add them here
     // TODO: LinkHandler just abstracts the layer of sending information to the server and responding to it with a user ui
                 // => regarding Metadata
+
+    /**
+     * Creates a new Link handler object to obtain information about stuff
+     */
+    public LinkHandler(){
+
+    }
 
     //private static List<String> currentMp4Files = new ArrayList<>();
     /**
@@ -284,7 +298,7 @@ public class LinkHandler {
      * Therefore connect to r3d-soft.de's API
      * @param strToDownload String URL which contains media to be downloaded
      */
-    public void getMetadata(String strToDownload){
+    public JSONObject getMetadata(String strToDownload){
         // TODO: declare api end node to return following data:
         // TODO: { success: true|false, errorMessage: null|String, isPlaylist: true|false , data: [ {title: string, url: string}, ...]
         // If playlist => data is populated with all urls in playlist => otherwise just echo input url => add them to table
@@ -292,20 +306,35 @@ public class LinkHandler {
         // To start the download another request is send for each url
         // api end node should retrieve a downloadable url inside json
         // TODO: attention in this node remember youtube saves the IP => replace the server ip with users public ip
+        this.strRequestUrl = strToDownload;
+
+        return SendRequest(ApiNode.getMetadata);
     }
 
-    private JSONObject SendRequest() {
+    private JSONObject SendRequest(ApiNode usedNode) {
+        String strApiNode = "";
+        switch (usedNode){
+            case getMetadata:
+                strApiNode = this.apiNodes.get("getMetadata");
+                strApiNode = strApiNode.replace("{url}", this.strRequestUrl);
+                break;
+
+            case getDownload:
+                strApiNode = this.apiNodes.get("getDownload");
+                break;
+
+            default:
+                strApiNode = "";
+                break;
+        }
+
+        if(strApiNode.isEmpty()) { ConsolePrinter.printError("No correct API node selected"); return null; }
+
         try {
             //String rawData = "RAW_DATA_HERE";
             String url = (strServerIp.startsWith("http://") || strServerIp.startsWith("https://")) ? strServerIp : "http://" + strServerIp;
             URL obj = new URL(url + strApiNode);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-
-            // get request method
-            String strRequestMethod = getHTTPMethod();
-            if (strRequestMethod == null)
-                throw new Exception("getHTTPMethod returns null");
-            con.setRequestMethod(strRequestMethod);
 
             // Get response stuff
             int responseCode = con.getResponseCode();
@@ -320,10 +349,17 @@ public class LinkHandler {
             in.close();
 
             this.strResponseText = response.toString();
-            return isSuccessfullyExcuted();
+
+            return new JSONObject(this.strResponseText);
 
         } catch(Exception ex){
             // TODO: throw exception
+            ConsolePrinter.printError("Error occurred: " + ex.getMessage());
+            return null;
         }
     }
+}
+
+enum ApiNode {
+    getMetadata, getDownload
 }
