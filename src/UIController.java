@@ -1,6 +1,8 @@
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
@@ -10,7 +12,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import org.json.JSONObject;
+
+import java.io.Console;
 import java.net.URL;
+import java.rmi.server.ExportException;
 import java.util.ResourceBundle;
 
 /**
@@ -74,7 +79,42 @@ public class UIController implements Initializable {
 
     @FXML
     protected void btnStartAction(){
-        // Start the download for each item in list
+        Task task = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                try {
+                    // loop all items
+                    for (int i = 0; i < tableQueue.getItems().size(); i++) {
+                        String downloadUrl = tableQueue.getItems().get(i).getUrl();
+                        String fileName = Downloader.validateFileName(tableQueue.getItems().get(i).getTitle());
+
+                        JSONObject currentLink = new LinkHandler().getDownloadUrl(downloadUrl);
+
+                        if (currentLink.getBoolean("success")) {
+                            String strdownloadLink = currentLink.getString("download_url");
+
+                            Downloader.DownloadFile(new URL(strdownloadLink).openConnection(), settingsManager.GetStandardSavePath() +
+                                            CGlobals.PATH_SEPARATOR + fileName
+                                    , Downloader.getDownloadSize(strdownloadLink), tableQueue.getItems().get(i), tableQueue);
+
+                        } else {
+                            ConsolePrinter.showAlert("Error fetching download url", "API error",
+                                    currentLink.getString("errorMessage"), Alert.AlertType.ERROR);
+                        }
+                    }
+
+                    ConsolePrinter.showAlert("Job finished", "Downloads successfully finished",
+                            "All downloads have been successfully downloaded to: " + settingsManager.GetStandardSavePath(), Alert.AlertType.INFORMATION);
+                }catch (Exception ex){
+                    ConsolePrinter.showAlert("Download error", "Error occurred while downloading",
+                            "More information: \n" + ex.getMessage(), Alert.AlertType.ERROR);
+                }
+
+                return null;
+            }
+        };
+        task.setOnSucceeded(taskFinishedEvent -> ConsolePrinter.printDebug("Task finished!"));
+        new Thread(task).start();
     }
 
     @Override

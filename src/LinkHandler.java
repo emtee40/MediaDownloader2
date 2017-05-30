@@ -19,7 +19,7 @@ public class LinkHandler {
     private Map<String, String> apiNodes = new HashMap<String, String>(){
         {
             put("getMetadata", "search/{url}");
-            put("getDownloadLink", "");
+            put("getDownload", "getDownloadLink/{url}");
         }
     };
 
@@ -311,6 +311,11 @@ public class LinkHandler {
         return SendRequest(ApiNode.getMetadata);
     }
 
+    public JSONObject getDownloadUrl(String strToDownload){
+        this.strRequestUrl = strToDownload;
+        return SendRequest(ApiNode.getDownload);
+    }
+
     private JSONObject SendRequest(ApiNode usedNode) {
         String strApiNode = "";
         switch (usedNode){
@@ -321,6 +326,7 @@ public class LinkHandler {
 
             case getDownload:
                 strApiNode = this.apiNodes.get("getDownload");
+                strApiNode = strApiNode.replace("{url}", this.strRequestUrl);
                 break;
 
             default:

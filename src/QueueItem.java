@@ -28,6 +28,10 @@ public class QueueItem {
         return Progress;
     }
 
+    public void setProgress(String prog) {
+        this.Progress = prog;
+    }
+
     public String getPath() {
         return Path;
     }
