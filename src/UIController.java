@@ -1,3 +1,4 @@
+import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -17,6 +18,7 @@ import java.util.ResourceBundle;
  */
 public class UIController implements Initializable {
     private ObservableList<ObservableList> data = FXCollections.observableArrayList();
+    private SettingsManager settingsManager;
 
     @FXML
     TextField txtUrl;
@@ -60,9 +62,10 @@ public class UIController implements Initializable {
         }
 
         txtUrl.setEditable(false);
+
         // analyze url
         JSONObject currentMetadata = new LinkHandler().getMetadata(strToDownload);
-        tableQueue.getItems().add(new QueueItem(currentMetadata.getString("title"), strToDownload, "0%", "C:\\Users\\Dominik\\Desktop"));
+        tableQueue.getItems().add(new QueueItem(currentMetadata.getString("title"), strToDownload, "0%", settingsManager.GetStandardSavePath()));
 
         // re-enable
         txtUrl.setText("");
@@ -87,6 +90,9 @@ public class UIController implements Initializable {
                 btnAddToListAction();
             }
         });
+
+        // init user settings
+        settingsManager = new SettingsManager();
     }
 
     public void deleteQueueRow(){
@@ -101,5 +107,18 @@ public class UIController implements Initializable {
         if(e.getCode() == KeyCode.DELETE){
             deleteQueueRow();
         }
+    }
+
+    @FXML
+    protected void showAbout(){
+        ConsolePrinter.showAbout();
+    }
+
+    @FXML
+    protected void menuItemCloseClicked(){
+        // check if everything is safe to exit
+
+        //
+        System.exit(0);
     }
 }
