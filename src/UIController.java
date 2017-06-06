@@ -44,8 +44,6 @@ public class UIController implements Initializable {
     @FXML
     TableColumn<QueueItem, String> pathCol;
 
-
-
     @FXML
     protected void btnAddToListAction(){
         // Add URL to list
@@ -70,7 +68,9 @@ public class UIController implements Initializable {
 
         // analyze url
         JSONObject currentMetadata = new LinkHandler().getMetadata(strToDownload);
-        tableQueue.getItems().add(new QueueItem(currentMetadata.getString("title"), strToDownload, "0%", settingsManager.GetStandardSavePath()));
+        tableQueue.getItems().add(new QueueItem((strToDownload.contains("youtu")) ? currentMetadata.getString("title")
+                + ".mp4" : currentMetadata.getString("title") + ".mp3",
+                strToDownload, "0%", settingsManager.GetStandardSavePath()));
 
         // re-enable
         txtUrl.setText("");
@@ -81,39 +81,48 @@ public class UIController implements Initializable {
     protected void btnStartAction(){
         Task task = new Task<Void>() {
             @Override
+            protected void failed() {
+                super.failed();
+
+                ConsolePrinter.showAlert("Download error", "Error occurred while downloading",
+                        "Couldn't finish download task!", Alert.AlertType.ERROR);
+            }
+
+            @Override
             protected Void call() throws Exception {
-                try {
-                    // loop all items
-                    for (int i = 0; i < tableQueue.getItems().size(); i++) {
-                        String downloadUrl = tableQueue.getItems().get(i).getUrl();
-                        String fileName = Downloader.validateFileName(tableQueue.getItems().get(i).getTitle());
+                // loop all items
+                for (int i = 0; i < tableQueue.getItems().size(); i++) {
+                    String downloadUrl = tableQueue.getItems().get(i).getUrl();
+                    String fileName = Downloader.validateFileName(tableQueue.getItems().get(i).getTitle());
 
-                        JSONObject currentLink = new LinkHandler().getDownloadUrl(downloadUrl);
+                    JSONObject currentLink = new LinkHandler().getDownloadUrl(downloadUrl);
 
-                        if (currentLink.getBoolean("success")) {
-                            String strdownloadLink = currentLink.getString("download_url");
+                    if (currentLink.getBoolean("success")) {
+                        String strdownloadLink = currentLink.getString("download_url");
 
-                            Downloader.DownloadFile(new URL(strdownloadLink).openConnection(), settingsManager.GetStandardSavePath() +
-                                            CGlobals.PATH_SEPARATOR + fileName
-                                    , Downloader.getDownloadSize(strdownloadLink), tableQueue.getItems().get(i), tableQueue);
+                        Downloader.DownloadFile(new URL(strdownloadLink).openConnection(), settingsManager.GetStandardSavePath() +
+                                        CGlobals.PATH_SEPARATOR + fileName
+                                , Downloader.getDownloadSize(strdownloadLink), tableQueue.getItems().get(i), tableQueue);
 
-                        } else {
+                    } else {
+                        Platform.runLater(() -> {
                             ConsolePrinter.showAlert("Error fetching download url", "API error",
                                     currentLink.getString("errorMessage"), Alert.AlertType.ERROR);
-                        }
+                        });
+                        return null;
                     }
-
-                    ConsolePrinter.showAlert("Job finished", "Downloads successfully finished",
-                            "All downloads have been successfully downloaded to: " + settingsManager.GetStandardSavePath(), Alert.AlertType.INFORMATION);
-                }catch (Exception ex){
-                    ConsolePrinter.showAlert("Download error", "Error occurred while downloading",
-                            "More information: \n" + ex.getMessage(), Alert.AlertType.ERROR);
                 }
 
+                Platform.runLater(() -> {
+                    ConsolePrinter.showAlert("Job finished", "Downloads successfully finished",
+                            "All downloads have been successfully downloaded to: " + settingsManager.GetStandardSavePath(), Alert.AlertType.INFORMATION);
+                });
                 return null;
             }
         };
-        task.setOnSucceeded(taskFinishedEvent -> ConsolePrinter.printDebug("Task finished!"));
+        task.setOnSucceeded(e -> {
+            ConsolePrinter.printDebug("Task finished!");
+        });
         new Thread(task).start();
     }
 
