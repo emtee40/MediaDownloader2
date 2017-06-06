@@ -76,15 +76,21 @@ public class UIController implements Initializable {
 
         // analyze url
         JSONObject currentMetadata = new LinkHandler().getMetadata(strToDownload);
-        tableQueue.getItems().add(new QueueItem((strToDownload.contains("youtu")) ? currentMetadata.getString("title")
-                + ".mp4" : currentMetadata.getString("title") + ".mp3",
-                strToDownload, "0%", settingsManager.GetStandardSavePath()));
+        if(currentMetadata.getBoolean("success")) {
+            tableQueue.getItems().add(new QueueItem((strToDownload.contains("youtu")) ? currentMetadata.getString("title")
+                    + ".mp4" : currentMetadata.getString("title") + ".mp3",
+                    strToDownload, "0%", settingsManager.GetStandardSavePath()));
 
-        // get latest item and add to conversion queue
-        QueueItem latestQueueItem = tableQueue.getItems().get(tableQueue.getItems().size() - 1);
-        if(latestQueueItem.getTitle().contains(".mp4"))
-            ConvertManager.AddItemToQueue(Downloader.validateFileName(latestQueueItem.getTitle()), ConvertTypes.MP4,
-                    latestQueueItem.getPath());
+            // get latest item and add to conversion queue
+            QueueItem latestQueueItem = tableQueue.getItems().get(tableQueue.getItems().size() - 1);
+            if (latestQueueItem.getTitle().contains(".mp4"))
+                ConvertManager.AddItemToQueue(Downloader.validateFileName(latestQueueItem.getTitle()), ConvertTypes.MP4,
+                        latestQueueItem.getPath());
+        } else {
+            ConsolePrinter.printError("Metadata could not be retrieved");
+            ConsolePrinter.showAlert("Error retrieving metadata", "Metadata - Server error",
+                    currentMetadata.getString("errorMessage"), Alert.AlertType.ERROR);
+        }
 
         // re-enable
         txtUrl.setText("");
