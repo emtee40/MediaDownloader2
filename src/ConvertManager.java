@@ -28,7 +28,7 @@ public class ConvertManager {
     public static void StartConversion(){
         for (int i = 0; i < convertList.length(); i++) {
             JSONObject currentObj = convertList.getJSONObject(i);
-            String ffmpeg = "ffmpeg -i {INPUT} -vn -acodec libmp3lame -ac 2 -ab 320k -ar 48000 {OUTPUT}.mp3";
+            String ffmpeg = "ffmpeg -i \"{INPUT}\" -vn -acodec libmp3lame -ac 2 -ab 320k -ar 48000 \"{OUTPUT}.mp3\"";
 
             ffmpeg = ffmpeg.replace("{INPUT}",
                     currentObj.getString("savePath") + currentObj.getString("itemName"));
