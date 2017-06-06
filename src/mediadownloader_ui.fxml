@@ -29,7 +29,13 @@
                      </accelerator></MenuItem>
             </items>
           </Menu>
-          <Menu mnemonicParsing="false" text="_Edit" />
+          <Menu mnemonicParsing="false" text="_Edit">
+               <items>
+                  <MenuItem onAction="#showSettings" text="_Settings">
+                     <accelerator>
+                        <KeyCodeCombination alt="UP" code="F" control="DOWN" meta="UP" shift="DOWN" shortcut="UP" />
+                     </accelerator></MenuItem>
+               </items></Menu>
           <Menu mnemonicParsing="false" text="_Help">
             <items>
               <MenuItem mnemonicParsing="false" onAction="#showAbout" text="About" />
@@ -84,7 +90,20 @@
                         </BorderPane>
                      </content>
                 </Tab>
-                <Tab text="Finished downloads" />
+                <Tab text="Finished downloads">
+                     <content>
+                        <BorderPane prefHeight="200.0" prefWidth="200.0">
+                           <center>
+                              <TableView fx:id="tableFinished" onKeyPressed="#tableFinishKeyPressed" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                                <columns>
+                                  <TableColumn fx:id="finishedTitle" prefWidth="205.0" text="Title" />
+                                    <TableColumn fx:id="finishedUrl" prefWidth="188.0" text="URL" />
+                                  <TableColumn fx:id="finishedPath" minWidth="0.0" prefWidth="204.0" text="Path on disk" />
+                                </columns>
+                              </TableView>
+                           </center>
+                        </BorderPane>
+                     </content></Tab>
               </tabs>
             </TabPane>
          </center>

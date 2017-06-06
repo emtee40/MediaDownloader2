@@ -20,9 +20,19 @@ This version was released on <RELEASE_DATE>
 
 TODO: write a small how-to
 
-#### Supported websites
+### Supported websites
 
-TODO: add supported websites
+This downloader supports a bunch of websites.
+ 
+There are the big players which are: YouTube, Soundcloud & Vimeo.
 
-# Donate:
-If you like my work you can donate on my website __http://r3d-soft.de__
+As well we provide you with a premium link generator for uploaded.net
+
+We intended to add many more hosters to our service to provide you with a necessary amount of supported hosters to store your media offline!
+
+Just contact us here: <http://r3d-soft.de/contact.php> if you have any wishes regarding hosters etc.
+
+# Support or donate us:
+If you like our work you can donate on our website __http://r3d-soft.de__
+
+Or you become a patreon on <http://patreon.com/r3dst0rm> and support us there

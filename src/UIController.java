@@ -1,4 +1,3 @@
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -15,8 +14,7 @@ import org.json.JSONObject;
 
 import java.io.Console;
 import java.net.URL;
-import java.rmi.server.ExportException;
-import java.util.Queue;
+import java.security.Key;
 import java.util.ResourceBundle;
 
 /**
@@ -34,6 +32,8 @@ public class UIController implements Initializable {
     Button btnStart;
     @FXML
     javafx.scene.control.TableView<QueueItem> tableQueue;
+    @FXML
+    javafx.scene.control.TableView<QueueItem> tableFinished;
 
     // Queue Items columns
     @FXML
@@ -45,15 +45,17 @@ public class UIController implements Initializable {
     @FXML
     TableColumn<QueueItem, String> pathCol;
 
+    // Finished Items columns
+    @FXML
+    TableColumn<QueueItem, String> finishedTitle;
+    @FXML
+    TableColumn<QueueItem, String> finishedUrl;
+    @FXML
+    TableColumn<QueueItem, String> finishedPath;
+
     @FXML
     protected void btnAddToListAction(){
         // Add URL to list
-        /*
-            1. Disable URL manipulation
-            2. Use LinkHandler to validate the URL
-            3. Add link to TableView
-            4. Reset URL textbox and re-enable
-         */
         String strToDownload = txtUrl.getText();
 
         // validate
@@ -74,7 +76,7 @@ public class UIController implements Initializable {
                 strToDownload, "0%", settingsManager.GetStandardSavePath()));
 
         // get latest item and add to conversion queue
-        QueueItem latestQueueItem = (QueueItem) tableQueue.getItems().get(tableQueue.getItems().size() - 1);
+        QueueItem latestQueueItem = tableQueue.getItems().get(tableQueue.getItems().size() - 1);
         if(latestQueueItem.getTitle().contains(".mp4"))
             ConvertManager.AddItemToQueue(Downloader.validateFileName(latestQueueItem.getTitle()), ConvertTypes.MP4,
                     latestQueueItem.getPath());
@@ -99,8 +101,9 @@ public class UIController implements Initializable {
             protected Void call() throws Exception {
                 // loop all items
                 for (int i = 0; i < tableQueue.getItems().size(); i++) {
-                    String downloadUrl = tableQueue.getItems().get(i).getUrl();
-                    String fileName = Downloader.validateFileName(tableQueue.getItems().get(i).getTitle());
+                    QueueItem currentItem = tableQueue.getItems().get(i);
+                    String downloadUrl = currentItem.getUrl();
+                    String fileName = Downloader.validateFileName(currentItem.getTitle());
 
                     JSONObject currentLink = new LinkHandler().getDownloadUrl(downloadUrl);
 
@@ -109,8 +112,11 @@ public class UIController implements Initializable {
 
                         Downloader.DownloadFile(new URL(strdownloadLink).openConnection(), settingsManager.GetStandardSavePath() +
                                         CGlobals.PATH_SEPARATOR + fileName
-                                , Downloader.getDownloadSize(strdownloadLink), tableQueue.getItems().get(i), tableQueue);
+                                , Downloader.getDownloadSize(strdownloadLink), currentItem, tableQueue);
 
+                        // download finished => move to finished downloads
+                        tableFinished.getItems().add(currentItem);
+                        tableQueue.getItems().remove(i);
                     } else {
                         Platform.runLater(() -> {
                             ConsolePrinter.showAlert("Error fetching download url", "API error",
@@ -122,24 +128,34 @@ public class UIController implements Initializable {
 
                 Platform.runLater(() -> {
                     ConsolePrinter.showAlert("Job finished", "Downloads successfully finished",
-                            "All downloads have been successfully downloaded to: " + settingsManager.GetStandardSavePath(), Alert.AlertType.INFORMATION);
+                            "All downloads have been successfully downloaded to: " + settingsManager.GetStandardSavePath() +
+                                    "\n\n" +
+                            "We are now converting those files into a given format - if any.", Alert.AlertType.INFORMATION);
                 });
                 return null;
             }
         };
         task.setOnSucceeded(e -> {
-            ConsolePrinter.printDebug("Task finished!");
+            ConsolePrinter.printDebug("Download-Task finished!");
+
+            ConsolePrinter.printDebug("Conversion-Task started!");
             ConvertManager.StartConversion();
+            ConsolePrinter.printDebug("Conversion-Task finished!");
         });
         new Thread(task).start();
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        // set cell factory for each table
         titleCol.setCellValueFactory(new PropertyValueFactory<>("Title"));
         urlCol.setCellValueFactory(new PropertyValueFactory<>("Url"));
         progressCol.setCellValueFactory(new PropertyValueFactory<>("Progress"));
         pathCol.setCellValueFactory(new PropertyValueFactory<>("Path"));
+
+        finishedTitle.setCellValueFactory(new PropertyValueFactory<>("Title"));
+        finishedUrl.setCellValueFactory(new PropertyValueFactory<>("Url"));
+        finishedPath.setCellValueFactory(new PropertyValueFactory<>("Path"));
 
         // init enter add to list
         txtUrl.setOnKeyPressed(event -> {
@@ -159,10 +175,24 @@ public class UIController implements Initializable {
         allItems.removeAll(itemSelected);
     }
 
+    public void deleteFinishRow(){
+        ObservableList<QueueItem> itemSelected, allItems;
+        allItems = tableFinished.getItems();
+        itemSelected = tableFinished.getSelectionModel().getSelectedItems();
+        allItems.removeAll(itemSelected);
+    }
+
     @FXML
     private void tableQueueKeyPressed(javafx.scene.input.KeyEvent e){
         if(e.getCode() == KeyCode.DELETE){
             deleteQueueRow();
+        }
+    }
+
+    @FXML
+    private void tableFinishKeyPressed(javafx.scene.input.KeyEvent e){
+        if(e.getCode() == KeyCode.DELETE){
+            deleteFinishRow();
         }
     }
 
@@ -177,5 +207,10 @@ public class UIController implements Initializable {
 
         //
         System.exit(0);
+    }
+
+    @FXML
+    protected void showSettings(){
+        ConsolePrinter.printDebug("Displaying settings window");
     }
 }
