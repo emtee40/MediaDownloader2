@@ -1,6 +1,9 @@
+import javafx.fxml.Initializable;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
+import java.net.URL;
 import java.util.*;
 
 /**
@@ -346,3 +349,4 @@ class SettingsManagerWindow extends JDialog {
         new SettingsManagerWindow(man, null);
     }
 }
+

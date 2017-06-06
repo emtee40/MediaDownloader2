@@ -3,16 +3,21 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
+import javafx.stage.Stage;
 import org.json.JSONObject;
 
 import java.io.Console;
+import java.io.IOException;
 import java.net.URL;
 import java.security.Key;
 import java.util.ResourceBundle;
@@ -212,5 +217,22 @@ public class UIController implements Initializable {
     @FXML
     protected void showSettings(){
         ConsolePrinter.printDebug("Displaying settings window");
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader();
+            fxmlLoader.setLocation(getClass().getResource("mediadownloader_settings.fxml"));
+            /*
+            * if "fx:controller" is not set in fxml
+            * fxmlLoader.setController(NewWindowController);
+            */
+            Scene scene = new Scene(fxmlLoader.load(), 600, 400);
+            Stage stage = new Stage();
+            stage.setTitle("MediaDownloader v" + CGlobals.VERSION_STRING + " - Settings");
+            stage.setScene(scene);
+            stage.getIcons().add(new Image(this.getClass().getResource("resources/images/main_icon.png").toString()));
+            stage.setResizable(false);
+            stage.show();
+        } catch (IOException e) {
+            ConsolePrinter.printError("Failed to create settings window");
+        }
     }
 }
