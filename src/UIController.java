@@ -16,6 +16,7 @@ import org.json.JSONObject;
 import java.io.Console;
 import java.net.URL;
 import java.rmi.server.ExportException;
+import java.util.Queue;
 import java.util.ResourceBundle;
 
 /**
@@ -72,6 +73,12 @@ public class UIController implements Initializable {
                 + ".mp4" : currentMetadata.getString("title") + ".mp3",
                 strToDownload, "0%", settingsManager.GetStandardSavePath()));
 
+        // get latest item and add to conversion queue
+        QueueItem latestQueueItem = (QueueItem) tableQueue.getItems().get(tableQueue.getItems().size() - 1);
+        if(latestQueueItem.getTitle().contains(".mp4"))
+            ConvertManager.AddItemToQueue(Downloader.validateFileName(latestQueueItem.getTitle()), ConvertTypes.MP4,
+                    latestQueueItem.getPath());
+
         // re-enable
         txtUrl.setText("");
         txtUrl.setEditable(true);
@@ -122,6 +129,7 @@ public class UIController implements Initializable {
         };
         task.setOnSucceeded(e -> {
             ConsolePrinter.printDebug("Task finished!");
+            ConvertManager.StartConversion();
         });
         new Thread(task).start();
     }
