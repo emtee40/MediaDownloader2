@@ -124,7 +124,8 @@ public class SettingsManager {
             return "Not needed under Linux";
 
         String sRemGema = iniFile.getIniValue(STANDARD_SECTION_NAME, FFMPEG);
-        return sRemGema != null ? sRemGema : (String) htDefaultValues.get(FFMPEG);
+        return sRemGema != null ? sRemGema.replace("{wd}", System.getProperty("user.dir")) : ((String) htDefaultValues.get(FFMPEG)).replace("{wd}",
+                System.getProperty("user.dir"));
     }
 
     // Default: false

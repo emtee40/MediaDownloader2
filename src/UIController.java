@@ -239,6 +239,7 @@ public class UIController implements Initializable {
             stage.show();
         } catch (IOException e) {
             ConsolePrinter.printError("Failed to create settings window");
+            e.printStackTrace();
         }
     }
 }

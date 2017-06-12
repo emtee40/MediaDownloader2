@@ -41,7 +41,7 @@
                                  </BorderPane.margin></TextField>
                            </center>
                            <bottom>
-                              <Button fx:id="btnPathFFMPEG" mnemonicParsing="false" prefHeight="25.0" prefWidth="323.0" text="Choose path ..." BorderPane.alignment="CENTER">
+                              <Button fx:id="btnPathFFMPEG" mnemonicParsing="false" onAction="#btnChooseFFMPEG_Clicked" prefHeight="25.0" prefWidth="323.0" text="Choose path ..." BorderPane.alignment="CENTER">
                                  <BorderPane.margin>
                                     <Insets right="15.0" />
                                  </BorderPane.margin></Button>
@@ -58,8 +58,8 @@
    <bottom>
       <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <buttons>
-            <Button cancelButton="true" minWidth="0.0" prefHeight="25.0" text="_Cancel" />
-          <Button defaultButton="true" prefHeight="25.0" prefWidth="136.0" text="_Save" />
+            <Button fx:id="cancelButton" cancelButton="true" minWidth="0.0" onAction="#btnClose_Clicked" prefHeight="25.0" text="_Cancel" />
+          <Button fx:id="saveButton" defaultButton="true" onAction="#btnSave_Clicked" prefHeight="25.0" prefWidth="136.0" text="_Save" />
         </buttons>
          <BorderPane.margin>
             <Insets right="15.0" />
