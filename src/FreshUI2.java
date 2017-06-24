@@ -15,7 +15,7 @@ public class FreshUI2 extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("mediadownloader_ui.fxml"));
 
         Scene scene = new Scene(root, 640, 400);
-        primaryStage.getIcons().add(new Image(this.getClass().getResource("resources/images/main_icon.png").toString()));
+        primaryStage.getIcons().add(new Image(this.getClass().getResource("resources/images/main_icon2.png").toString()));
         primaryStage.setTitle("MediaDownloader v2.0.0");
         primaryStage.setScene(scene);
         primaryStage.show();
